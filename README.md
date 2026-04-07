@@ -1,115 +1,155 @@
-# Deep Researcher Agent
+# 🔎 Deep Research Agent
 
-![Demo](./assets/demo.png)
+A hybrid AI-powered research agent that automates topic research, analysis, and structured report generation — using a combination of local and cloud LLMs.
 
-A multi-stage AI-powered research workflow agent that automates comprehensive web research, analysis, and report generation using Agno, Scrapegraph, and Nebius AI.
+---
 
+## ✨ Features
 
-## Features
+* **Hybrid LLM Architecture** — Seamlessly switch between local (Ollama) and cloud (Groq) inference
+* **Wikipedia Data Scraping** — Automatically fetches topic summaries to ground responses in real data
+* **Structured Report Generation** — Produces clean, readable reports with Introduction, Key Concepts, Applications, and Conclusion
+* **Streamlit Web UI** — Interactive chat-style interface with search history
+* **MCP Server** — Exposes the research agent as a tool for Claude Desktop or Cursor
+* **CLI Support** — Run research directly from your terminal
 
-- **Multi-Stage Research Workflow**: Automated pipeline for searching, analyzing, and reporting
-- **Web Scraping**: Advanced data extraction with Scrapegraph
-- **AI-Powered Analysis**: Uses Nebius AI for intelligent synthesis
-- **Streamlit Web UI**: Modern, interactive interface
-- **MCP Server**: Model Context Protocol server for integration
-- **Command-Line Support**: Run research tasks directly from the terminal
+---
 
-## How It Works
+## 🧠 How It Works
 
-![Workflow](./assets/workflow.gif)
+1. **Scrape** — Fetches a Wikipedia summary for the given topic
+2. **Fallback** — If no Wikipedia data is found, the LLM generates context from its own knowledge
+3. **Analyze & Report** — The LLM synthesizes the data into a structured, detailed report
 
-1. **Searcher**: Finds and extracts high-quality, up-to-date information from the web using Scrapegraph and Nebius AI.
-2. **Analyst**: Synthesizes, interprets, and organizes the research findings, highlighting key insights and trends.
-3. **Writer**: Crafts a clear, structured, and actionable report, including references and recommendations.
+```
+Input Topic → Wikipedia Scraper → LLM Analysis → Structured Report
+```
 
-> **Workflow:**
->
-> - Input a research topic or question
-> - The agent orchestrates web search, analysis, and report writing in sequence
-> - Results are presented in a user-friendly format (web or CLI)
+---
 
+## 🔀 LLM Modes
 
-## Prerequisites
+| Mode | Engine | When to use |
+|------|--------|-------------|
+| 🟢 Local | Ollama (`llama3`) | Offline / privacy-first usage |
+| 🔵 Cloud | Groq (`llama3-8b-8192`) | Faster responses, no local setup |
 
-- Python 3.10+
-- [uv](https://github.com/astral-sh/uv) for dependency management
-- API keys for [Nebius AI](https://dub.sh/nebius) and [Scrapegraph](https://dub.sh/scrapegraphai)
+Switch modes via the `USE_LOCAL` environment variable.
 
+---
 
+## 📦 Prerequisites
 
-## Installation
+* Python 3.10+
+* [Ollama](https://ollama.com) installed and running locally *(for local mode)*
+* [Groq API key](https://console.groq.com) *(for cloud mode)*
 
-Follow these steps to set up the **Deep Researcher Agent** on your machine:
+---
 
-1. **Install `uv`** (if you don’t have it):
+## 🚀 Installation
 
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   ```
+### 1. Clone the repository
 
-2. **Clone the repository:**
+```bash
+git clone https://github.com/YOUR_USERNAME/deep-researcher-agent.git
+cd deep-researcher-agent
+```
 
-   ```bash
-   git clone https://github.com/Arindam200/awesome-ai-apps.git
-   ```
+---
 
-3. **Navigate to the Deep Researcher Agent directory:**
+## ⚙️ Virtual Environment Setup (Recommended)
 
-   ```bash
-   cd awesome-ai-apps/advance_ai_agents/deep_researcher_agent
-   ```
+### 🪟 Windows (PowerShell)
 
-4. **Install all dependencies:**
+#### Create virtual environment
 
-   ```bash
-   uv sync
-   ```
+```bash
+python -m venv .venv
+```
 
-## Environment Setup
+#### Activate it
 
-Create a `.env` file in the project root with your API keys:
+```bash
+.\.venv\Scripts\Activate
+```
+
+#### Upgrade pip
+
+```bash
+python -m pip install --upgrade pip
+```
+
+#### Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+### 🐧 Mac / Linux
+
+#### Create virtual environment
+
+```bash
+python3 -m venv .venv
+```
+
+#### Activate it
+
+```bash
+source .venv/bin/activate
+```
+
+#### Upgrade pip
+
+```bash
+pip install --upgrade pip
+```
+
+#### Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 🔐 Environment Setup
+
+Create a `.env` file in the root directory:
 
 ```env
-NEBIUS_API_KEY=your_nebius_api_key_here
-SGAI_API_KEY=your_scrapegraph_api_key_here
+USE_LOCAL=true
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
+---
 
-## Usage
+## 🖥️ Usage
 
-![usage](./assets/usage.gif)
-
-You can use the Deep Researcher Agent in three ways. Each method below includes a demo image so you know what to expect.
-
-### Web Interface
-
-Run the Streamlit app:
+### 🔹 Web Interface (Recommended)
 
 ```bash
-uv run streamlit run app.py
+streamlit run app.py
 ```
 
-Open your browser at [http://localhost:8501](http://localhost:8501)
+Open your browser at:
+http://localhost:8501
 
-What it looks like:
+---
 
-![demo](./assets/demo.png)
-
-### Command Line
-
-Run research directly from the command line:
+### 🔹 Command Line
 
 ```bash
-uv run python agents.py
+python agents.py
 ```
 
-What it looks like:
+---
 
-![Terminal Demo](./assets/terminal-demo.png)
+### 🔹 MCP Server (Claude Desktop / Cursor)
 
-### MCP Server
-
-Add the following configuration to your .cursor/mcp.json or Claude/claude_desktop_config.json file (adjust paths and API keys as needed):
+Add the following to your `.cursor/mcp.json` or `claude_desktop_config.json`:
 
 ```json
 {
@@ -117,77 +157,143 @@ Add the following configuration to your .cursor/mcp.json or Claude/claude_deskto
     "deep_researcher_agent": {
       "command": "python",
       "args": [
-        "--directory",
-        "/Your/Path/to/directory/awesome-ai-apps/advance_ai_agents/deep_researcher_agent",
-        "run",
-        "server.py"
+        "C:/path/to/your/project/server.py"
       ],
       "env": {
-        "NEBIUS_API_KEY": "your_nebius_api_key_here",
-        "SGAI_API_KEY": "your_scrapegraph_api_key_here"
+        "USE_LOCAL": "false",
+        "GROQ_API_KEY": "your_groq_api_key_here"
       }
     }
   }
 }
 ```
 
-This allows tools like Claude Desktop to manage and launch the MCP server automatically.
+> Replace `C:/path/to/your/project/server.py` with your actual file path.
 
-![Claude Desktop Demo](./assets/mcp-demo.png)
+Then restart Claude Desktop — you'll see `deep_researcher_agent` available as a tool.
 
+---
 
+## ⚠️ Important Notes
 
-## Project Structure
+### 🟢 Local Mode (Ollama)
+
+Start the Ollama server:
+
+```bash
+ollama serve
+```
+
+Pull the model:
+
+```bash
+ollama pull llama3
+```
+
+---
+
+### 🔵 Cloud Mode (Groq)
+
+Set in your `.env`:
+
+```env
+USE_LOCAL=false
+```
+
+---
+
+## 🧪 Example Queries
+
+Try researching:
 
 ```
-deep_researcher_agent/
+Artificial Intelligence
+Model Context Protocol
+Blockchain Technology
+Neural Networks
+```
+
+---
+
+## 📁 Project Structure
+
+```
+deep-researcher-agent/
 ├── app.py              # Streamlit web interface
-├── agents.py           # Core agent workflow
+├── agents.py           # Core research workflow & LLM logic
 ├── server.py           # MCP server
-├── assets/             # Static assets (images)
-├── pyproject.toml      # Project configuration
+├── requirements.txt    # Python dependencies
+├── pyproject.toml      # Project metadata
+├── .env                # Environment variables (not committed)
 └── README.md           # This file
 ```
 
 ---
 
-## Development
+## ⚙️ Configuration
 
-### Code Formatting
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `USE_LOCAL` | `true` | Use Ollama locally (`true`) or Groq cloud (`false`) |
+| `GROQ_API_KEY` | — | Required only when `USE_LOCAL=false` |
+
+---
+
+## 🛠️ Tech Stack
+
+* [Streamlit](https://streamlit.io) — Web UI
+* [Ollama](https://ollama.com) — Local LLM inference
+* [Groq](https://groq.com) — Cloud LLM inference
+* [Wikipedia REST API](https://en.wikipedia.org/api/rest_v1/) — Data source
+* [FastMCP](https://github.com/jlowin/fastmcp) — MCP server
+
+---
+
+## 🚨 Common Issues
+
+### ModuleNotFoundError
 
 ```bash
-uv run black .
-uv run isort .
-```
-
-### Type Checking
-
-```bash
-uv run mypy .
-```
-
-### Testing
-
-```bash
-uv run pytest
+pip install -r requirements.txt
 ```
 
 ---
 
-## Contributing
+### Ollama not responding
 
-Contributions are welcome! Please feel free to submit a Pull Request or open an issue.
+```bash
+ollama serve
+```
 
 ---
 
-## Acknowledgments
+### Slow response in local mode
 
-- [Agno](https://www.agno.com/) for agent orchestration
-- [Scrapegraph](https://dub.sh/scrapegraphai) for web scraping
-- [Nebius Token Factory](https://tokenfactory.nebius.com/) for AI model access
-- [Streamlit](https://streamlit.io/) for the web interface
+Switch to cloud mode:
 
+```env
+USE_LOCAL=false
+```
 
-## Author
+---
 
-Developed with ❤️ by [Arindam Majumder](https://www.youtube.com/c/Arindam_1729)
+## 💡 Pro Tips
+
+Check which Python is active:
+
+```bash
+where python    # Windows
+which python    # Mac/Linux
+```
+
+Deactivate virtual environment when done:
+
+```bash
+deactivate
+```
+
+---
+
+## ❤️ Author
+
+Developed by **Sanidhya** 🚀

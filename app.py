@@ -1,7 +1,6 @@
 import streamlit as st
-from agents import DeepResearcherAgent
+from agents import run_research
 import time
-import base64
 import re
 
 st.set_page_config(
@@ -9,81 +8,123 @@ st.set_page_config(
     page_icon="🔎",
 )
 
-with open("./assets/scrapegraph.png", "rb") as scrapegraph_file:
-    scrapegraph_base64 = base64.b64encode(scrapegraph_file.read()).decode()
+# =========================
+# 🧠 INIT SESSION STATE
+# =========================
+if "history" not in st.session_state:
+    st.session_state.history = []
 
-    # Create title with embedded images
-    title_html = f"""
-    <div style="display: flex; justify-content: center; align-items: center; width: 100%; padding: 32px 0 24px 0;">
-        <h1 style="margin: 0; padding: 0; font-size: 2.5rem; font-weight: bold;">
-            <span style="font-size:2.5rem;">🔎</span> Agentic Deep Searcher with 
-            <span style="color: #fb542c;">Agno</span> & 
-            <span style="color: #8564ff;">Scrapegraph</span>
-            <img src="data:image/png;base64,{scrapegraph_base64}" style="height: 60px; margin-left: 12px; vertical-align: middle;"/>
-        </h1>
-    </div>
+if "selected_report" not in st.session_state:
+    st.session_state.selected_report = None
+
+
+# =========================
+# 🎯 TITLE
+# =========================
+st.markdown(
     """
-    st.markdown(title_html, unsafe_allow_html=True)
+    <div style="text-align:center; padding: 20px 0;">
+        <h1>🔎 AI Deep Research Agent</h1>
+        <p style="font-size:18px;">
+            Hybrid AI system using <b>Ollama (Local)</b> + <b>Groq (Cloud)</b>
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
+# =========================
+# 📌 SIDEBAR
+# =========================
 with st.sidebar:
+    st.header("⚙️ Configuration")
 
-    st.image("./assets/nebius.png", width=150)
-    nebius_api_key = st.text_input("Enter your Nebius API key", type="password")
-    st.divider()
-
-    st.subheader("Enter Scrapegraph API key")
-    scrapegraph_api_key = st.text_input(
-        "Enter your Scrapegraph API key", type="password"
-    )
-    st.divider()
-
-    st.header("About")
+    st.markdown("### Mode")
     st.markdown(
         """
-    This application is powered by a `DeepResearcherAgent` which leverages multiple AI agents for a comprehensive research process:
-    - **Searcher**: Finds and extracts information from the web.
-    - **Analyst**: Synthesizes and interprets the research findings.
-    - **Writer**: Produces a final, polished report.
-    """
-    )
-    st.markdown("---")
-    st.markdown(
-        "Developed with ❤️ by [Arindam Majumder](https://www.youtube.com/c/Arindam_1729)"
+- 🟢 **Local Mode** → Uses Ollama  
+- 🔵 **Cloud Mode** → Uses Groq API  
+        """
     )
 
-# Chat input at the bottom
-user_input = st.chat_input("Ask a question about your documents...")
+    st.markdown("---")
+
+    st.header("🕘 Search History")
+
+    # Show history
+    for i, item in enumerate(reversed(st.session_state.history)):
+        if st.button(item["query"], key=f"history_{i}"):
+            st.session_state.selected_report = item["report"]
+
+    # Clear history button
+    if st.button("🗑 Clear History"):
+        st.session_state.history = []
+        st.session_state.selected_report = None
+
+    st.markdown("---")
+
+    st.header("📖 About")
+    st.markdown(
+        """
+This AI Research Agent performs:
+
+- 🔍 **Data Collection** (Wikipedia)
+- 🧠 **Analysis** using LLM
+- ✍️ **Report Generation**
+
+Built with a hybrid architecture:
+- Local LLM (Ollama)
+- Cloud LLM (Groq)
+        """
+    )
+
+    st.markdown("---")
+    st.markdown("Developed by **Sanidhya** 🚀")
+
+
+# =========================
+# 💬 CHAT INPUT
+# =========================
+user_input = st.chat_input("Enter your research topic...")
 
 if user_input:
     try:
-        agent = DeepResearcherAgent()
-        with st.status("Executing research plan...", expanded=True) as status:
-            # PHASE 1: Researching
-            phase1_msg = "🧠 **Phase 1: Researching** - Finding and extracting relevant information from the web..."
-            status.write(phase1_msg)
-            research_content = agent.searcher.run(user_input)
+        with st.status("Processing research...", expanded=True) as status:
 
-            # PHASE 2: Analyzing
-            phase2_msg = "🔬 **Phase 2: Analyzing** - Synthesizing and interpreting the research findings..."
-            status.write(phase2_msg)
-            analysis = agent.analyst.run(research_content.content)
+            status.write("🔍 Fetching data...")
+            time.sleep(0.5)
 
-            # PHASE 3: Writing Report
-            phase3_msg = (
-                "✍️ **Phase 3: Writing Report** - Producing a final, polished report..."
-            )
-            status.write(phase3_msg)
-            report_iterator = agent.writer.run(analysis.content, stream=True)
+            status.write("🧠 Analyzing...")
+            time.sleep(0.5)
 
-        # Move report display outside of status block
-        full_report = ""
-        report_container = st.empty()
-        for chunk in report_iterator:
-            if chunk.content:
-                full_report += chunk.content
-                cleaned_report = re.sub(r"^```(?:[a-zA-Z]*)?\n?", "", full_report)
-                cleaned_report = re.sub(r"\n?```$", "", cleaned_report)
-                report_container.markdown(cleaned_report, unsafe_allow_html=True)
+            status.write("✍️ Generating report...")
+
+            # Run pipeline
+            report = run_research(user_input)
+
+            status.update(label="✅ Research completed!", state="complete")
+
+        # Clean output
+        cleaned_report = re.sub(r"^```(?:[a-zA-Z]*)?\n?", "", report)
+        cleaned_report = re.sub(r"\n?```$", "", cleaned_report)
+
+        # Save to history
+        st.session_state.history.append({
+            "query": user_input,
+            "report": cleaned_report
+        })
+
+        # Show latest report
+        st.markdown("## 📄 Research Report")
+        st.markdown(cleaned_report)
 
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        st.error(f"❌ Error: {e}")
+
+
+# =========================
+# 📜 SHOW SELECTED HISTORY
+# =========================
+if st.session_state.selected_report:
+    st.markdown("## 📜 Previous Report")
+    st.markdown(st.session_state.selected_report)
