@@ -9,7 +9,8 @@ load_dotenv()
 
 def get_model():
     """Returns the appropriate model based on environment config."""
-    use_local = os.getenv("USE_LOCAL", "true").lower() == "true"
+    use_local = os.getenv("USE_LOCAL", "false").lower() == "true"
+
     
     if use_local:
         return Ollama(id="llama3")
