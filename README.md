@@ -1,299 +1,79 @@
-# 🔎 Deep Research Agent
+# 🔎 Deep Research Agent // System 02
 
-A hybrid AI-powered research agent that automates topic research, analysis, and structured report generation — using a combination of local and cloud LLMs.
+**Live System:** [https://deep-research-system.streamlit.app/](https://deep-research-system.streamlit.app/)
+
+An autonomous AI-powered research system designed to scan the live web, synthesize technical data, and generate structured reports with source citations. 
 
 ---
 
-## ✨ Features
+## ⚡ Midnight Terminal Edition
+This version features the **"Midnight Terminal"** UI—a high-end, dark-themed dashboard built for technical professional environments.
 
-* **Hybrid LLM Architecture** — Seamlessly switch between local (Ollama) and cloud (Groq) inference
-* **Wikipedia Data Scraping** — Automatically fetches topic summaries to ground responses in real data
-* **Structured Report Generation** — Produces clean, readable reports with Introduction, Key Concepts, Applications, and Conclusion
-* **Streamlit Web UI** — Interactive chat-style interface with search history
-* **MCP Server** — Exposes the research agent as a tool for Claude Desktop or Cursor
-* **CLI Support** — Run research directly from your terminal
+## ✨ Key Features
+
+*   **Autonomous Web Search** — Powered by **Agno (Phidata)** and **DuckDuckGo** for real-time, live data harvesting.
+*   **Deep Reasoning Engine** — Uses **Llama 3.3 (70B)** via **Groq** for high-speed technical synthesis and logic.
+*   **Midnight Terminal UI** — Sleek glassmorphic panels, electric cyan accents, and pixel-art elements for a professional "System Builder" aesthetic.
+*   **Archive Sidebar** — Persistent session history to track previous research investigations.
+*   **Markdown Export** — One-click report saving for documentation and technical logs.
+*   **Hybrid LLM Support** — Switch to local mode (Ollama) via environment variables for privacy-first tasks.
 
 ---
 
 ## 🧠 How It Works
 
-1. **Scrape** — Fetches a Wikipedia summary for the given topic
-2. **Fallback** — If no Wikipedia data is found, the LLM generates context from its own knowledge
-3. **Analyze & Report** — The LLM synthesizes the data into a structured, detailed report
-
-```
-Input Topic → Wikipedia Scraper → LLM Analysis → Structured Report
-```
+1.  **Ingest** — User provides a research parameter or complex technical topic.
+2.  **Scan** — The agent autonomously constructs search queries and scans the live web using DuckDuckGo.
+3.  **Refine** — Data is parsed, filtered for relevance, and cross-referenced.
+4.  **Synthesize** — The LLM generates a structured report with Introduction, Key Concepts, Applications, and Citations.
 
 ---
 
-## 🔀 LLM Modes
+## 📦 Tech Stack
 
-| Mode | Engine | When to use |
-|------|--------|-------------|
-| 🟢 Local | Ollama (`llama3`) | Offline / privacy-first usage |
-| 🔵 Cloud | Groq (`llama3-8b-8192`) | Faster responses, no local setup |
-
-Switch modes via the `USE_LOCAL` environment variable.
-
----
-
-## 📦 Prerequisites
-
-* Python 3.10+
-* [Ollama](https://ollama.com) installed and running locally *(for local mode)*
-* [Groq API key](https://console.groq.com) *(for cloud mode)*
+*   **Framework**: [Agno](https://agno.com) (Agentic Workflow)
+*   **LLM (Cloud)**: [Groq](https://groq.com) (Llama 3.3 70B)
+*   **LLM (Local)**: [Ollama](https://ollama.com)
+*   **Search Engine**: [DuckDuckGo](https://duckduckgo.com)
+*   **Frontend**: [Streamlit](https://streamlit.io) (Custom CSS)
 
 ---
 
-## 🚀 Installation
+## 🚀 Installation & Setup
 
 ### 1. Clone the repository
-
 ```bash
-git clone https://github.com/YOUR_USERNAME/deep-researcher-agent.git
+git clone https://github.com/Sanidhya-Sehgal/deep-researcher-agent.git
 cd deep-researcher-agent
 ```
 
----
-
-## ⚙️ Virtual Environment Setup (Recommended)
-
-### 🪟 Windows (PowerShell)
-
-#### Create virtual environment
-
-```bash
-python -m venv .venv
-```
-
-#### Activate it
-
-```bash
-.\.venv\Scripts\Activate
-```
-
-#### Upgrade pip
-
-```bash
-python -m pip install --upgrade pip
-```
-
-#### Install dependencies
-
+### 2. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-### 🐧 Mac / Linux
-
-#### Create virtual environment
-
-```bash
-python3 -m venv .venv
-```
-
-#### Activate it
-
-```bash
-source .venv/bin/activate
-```
-
-#### Upgrade pip
-
-```bash
-pip install --upgrade pip
-```
-
-#### Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## 🔐 Environment Setup
-
-Create a `.env` file in the root directory:
-
+### 3. Environment Config
+Create a `.env` file:
 ```env
-USE_LOCAL=true
-GROQ_API_KEY=your_groq_api_key_here
+GROQ_API_KEY=your_api_key_here
+USE_LOCAL=false
 ```
 
----
-
-## 🖥️ Usage
-
-### 🔹 Web Interface (Recommended)
-
+### 4. Run Locally
 ```bash
 streamlit run app.py
 ```
 
-Open your browser at:
-http://localhost:8501
-
 ---
 
-### 🔹 Command Line
-
-```bash
-python agents.py
-```
-
----
-
-### 🔹 MCP Server (Claude Desktop / Cursor)
-
-Add the following to your `.cursor/mcp.json` or `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "deep_researcher_agent": {
-      "command": "python",
-      "args": [
-        "C:/path/to/your/project/server.py"
-      ],
-      "env": {
-        "USE_LOCAL": "false",
-        "GROQ_API_KEY": "your_groq_api_key_here"
-      }
-    }
-  }
-}
-```
-
-> Replace `C:/path/to/your/project/server.py` with your actual file path.
-
-Then restart Claude Desktop — you'll see `deep_researcher_agent` available as a tool.
-
----
-
-## ⚠️ Important Notes
-
-### 🟢 Local Mode (Ollama)
-
-Start the Ollama server:
-
-```bash
-ollama serve
-```
-
-Pull the model:
-
-```bash
-ollama pull llama3
-```
-
----
-
-### 🔵 Cloud Mode (Groq)
-
-Set in your `.env`:
-
-```env
-USE_LOCAL=false
-```
-
----
-
-## 🧪 Example Queries
-
-Try researching:
-
-```
-Artificial Intelligence
-Model Context Protocol
-Blockchain Technology
-Neural Networks
-```
-
----
-
-## 📁 Project Structure
-
-```
-deep-researcher-agent/
-├── app.py              # Streamlit web interface
-├── agents.py           # Core research workflow & LLM logic
-├── server.py           # MCP server
-├── requirements.txt    # Python dependencies
-├── pyproject.toml      # Project metadata
-├── .env                # Environment variables (not committed)
-└── README.md           # This file
-```
-
----
-
-## ⚙️ Configuration
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `USE_LOCAL` | `true` | Use Ollama locally (`true`) or Groq cloud (`false`) |
-| `GROQ_API_KEY` | — | Required only when `USE_LOCAL=false` |
-
----
-
-## 🛠️ Tech Stack
-
-* [Streamlit](https://streamlit.io) — Web UI
-* [Ollama](https://ollama.com) — Local LLM inference
-* [Groq](https://groq.com) — Cloud LLM inference
-* [Wikipedia REST API](https://en.wikipedia.org/api/rest_v1/) — Data source
-* [FastMCP](https://github.com/jlowin/fastmcp) — MCP server
-
----
-
-## 🚨 Common Issues
-
-### ModuleNotFoundError
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-### Ollama not responding
-
-```bash
-ollama serve
-```
-
----
-
-### Slow response in local mode
-
-Switch to cloud mode:
-
-```env
-USE_LOCAL=false
-```
-
----
-
-## 💡 Pro Tips
-
-Check which Python is active:
-
-```bash
-where python    # Windows
-which python    # Mac/Linux
-```
-
-Deactivate virtual environment when done:
-
-```bash
-deactivate
-```
+## 🌎 Deployment
+This app is optimized for **Streamlit Cloud**. To deploy:
+1. Push this code to GitHub.
+2. Link the repo on [share.streamlit.io](https://share.streamlit.io).
+3. Add your `GROQ_API_KEY` to the **Secrets** section in the dashboard.
 
 ---
 
 ## ❤️ Author
-
-Developed by **Sanidhya** 🚀
+Developed by **Sanidhya Sehgal** 🚀
+[Portfolio](http://localhost:3000/) // [GitHub](https://github.com/Sanidhya-Sehgal)
