@@ -1,125 +1,56 @@
 import os
 from dotenv import load_dotenv
-import requests
-import ollama
-from groq import Groq
+from agno.agent import Agent
+from agno.models.groq import Groq
+from agno.models.ollama import Ollama
+from agno.tools.duckduckgo import DuckDuckGoTools
 
 load_dotenv()
 
-
-# =========================
-# 🔥 LLM HYBRID FUNCTION
-# =========================
-def generate_response(prompt: str) -> str:
+def get_model():
+    """Returns the appropriate model based on environment config."""
     use_local = os.getenv("USE_LOCAL", "true").lower() == "true"
-
+    
     if use_local:
-        # 🟢 Use Ollama (Local)
-        response = ollama.chat(
-            model="llama3",
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return response["message"]["content"]
-
+        return Ollama(id="llama3")
     else:
-        # 🔵 Use Groq (Cloud)
-        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-
-        completion = client.chat.completions.create(
-            model="llama3-8b-8192",
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return completion.choices[0].message.content
+        return Groq(id="llama-3.3-70b-versatile")
 
 
-# =========================
-# 🔍 SCRAPER (WIKIPEDIA)
-# =========================
-def scrape_data(query: str) -> str:
-    # Improve short/ambiguous queries
-    if len(query.split()) <= 2:
-        query = query + " computer science"
-
-    url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{query.replace(' ', '_')}"
-
-    try:
-        response = requests.get(url)
-
-        if response.status_code == 200:
-            data = response.json()
-            return data.get("extract", "No data found")
-
-        return "No data found"
-
-    except Exception as e:
-        print(f"Scraping error: {e}")
-        return "Error fetching data"
-
-
-# =========================
-# 🧠 MAIN WORKFLOW
-# =========================
-class DeepResearcherAgent:
+def get_research_agent():
     """
-    Hybrid AI Research Agent:
-    - Scrapes data (Wikipedia)
-    - Uses LLM (Ollama/Groq)
-    - Generates structured report
+    Creates and returns a high-powered research agent using Agno.
+    Uses DuckDuckGo for real-time web searching.
     """
-
-    def run(self, topic: str) -> str:
-        print(f"Running research for topic: {topic}")
-
-        # Step 1: Scrape data
-        raw_data = scrape_data(topic)
-
-        # Fallback if no data found
-        if raw_data == "No data found" or raw_data.strip() == "":
-            raw_data = generate_response(
-                f"Explain {topic} in detail in computer science context"
-            )
-
-        # Step 2 + 3: Combined Analysis + Report
-        final_prompt = f"""
-You are an expert technical researcher and writer.
-
-Topic: {topic}
-
-Data:
-{raw_data}
-
-Instructions:
-- If the data is limited or missing, use your own knowledge
-- Explain the topic clearly
-- Include key concepts
-- Include real-world applications
-
-Create a detailed report with:
-- Introduction
-- Key Concepts
-- Applications
-- Conclusion
-"""
-
-        final_report = generate_response(final_prompt)
-
-        print("Report generated")
-
-        return final_report
+    return Agent(
+        model=get_model(),
+        tools=[DuckDuckGoTools()],
+        description="""You are a thoughtful and precise Research Analyst. 
+        Your goal is to provide human-readable, deeply researched reports on any topic.
+        You prefer quality over quantity and always cite your sources when using the web search tool.""",
+        instructions=[
+            "First, use the web search tool to gather comprehensive information on the user's topic.",
+            "Once you have gathered enough data, synthesize it into a professional technical report.",
+            "The report should include an Introduction, Key Concepts, Applications, and a Conclusion.",
+            "Maintain a professional and thoughtful tone.",
+            "Cite your sources clearly at the end of the report.",
+        ],
+        markdown=True,
+    )
 
 
-# =========================
-# 🚀 RUN FUNCTION
-# =========================
+
 def run_research(query: str) -> str:
-    agent = DeepResearcherAgent()
-    return agent.run(query)
+    """
+    Executes the research pipeline using the Agno agent.
+    """
+    agent = get_research_agent()
+    # Using run() to get the response content
+    response = agent.run(query)
+    return response.content
 
-
-# =========================
-# 🧪 TEST
-# =========================
 if __name__ == "__main__":
-    topic = "Artificial Intelligence"
-    response = run_research(topic)
-    print(response)
+    # Test run
+    topic = "Future of Quantum Computing"
+    print(f"Researching: {topic}...")
+    print(run_research(topic))
